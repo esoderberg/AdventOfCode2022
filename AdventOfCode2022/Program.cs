@@ -10,11 +10,10 @@
                 {
                     // Part 1
                     var lines = AoCFile.ReadInput(dayNum);
+                    var cls = Type.GetType($"AdventOfCode2022.Day{dayNum}");
                     try
                     {
-                        var cls =  Type.GetType($"AdventOfCode2022.Day{dayNum}");
                         var mth = cls?.GetMethod(nameof(AoCDay.ExecutePart1));
-                        
                         var result = mth?.Invoke(null, new[] { lines });
                         if (result?.GetType() == typeof(string))
                         {
@@ -28,7 +27,8 @@
                     // Part 2
                     try
                     {
-                        var result = Type.GetType($"Day{dayNum}")?.GetMethod(nameof(AoCDay.ExecutePart2))?.Invoke(null, new[] { lines });
+                        var mth = cls?.GetMethod(nameof(AoCDay.ExecutePart2));
+                        var result = mth?.Invoke(null, new[] { lines });
                         if (result?.GetType() == typeof(string))
                         {
                             Console.Out.WriteLine($"Result of day {dayNum} part 2: {result}");

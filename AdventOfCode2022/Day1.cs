@@ -22,7 +22,9 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            var elves = input.ToList().Split("");
+            var totalCalories = CalculateTotalCaloriesForElves(elves);
+            return totalCalories.OrderByDescending(c => c).Take(3).Sum().ToString();
         }
 
         public static string ExecutePart1(List<string> input)
