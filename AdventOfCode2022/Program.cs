@@ -1,4 +1,7 @@
-﻿namespace AdventOfCode2022
+﻿using System.Linq.Expressions;
+using System.Reflection;
+
+namespace AdventOfCode2022
 {
     internal class Program
     {
@@ -34,11 +37,15 @@
                             Console.Out.WriteLine($"Result of day {dayNum} part 2: {result}");
                         }
                     }
-                    catch (NotImplementedException _)
+                    catch (NotImplementedException)
                     {
                         Console.WriteLine($"Day {dayNum} Part 2 not solved yet");
                     }
-                    catch(Exception e)
+                    catch (TargetInvocationException)
+                    {
+                        Console.WriteLine($"Day {dayNum} Part 2 not solved yet");
+                    }
+                    catch (Exception e)
                     {
                         Console.WriteLine($"Day {dayNum} error encountered during processing: {e}");
                     }
