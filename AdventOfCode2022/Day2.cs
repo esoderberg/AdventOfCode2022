@@ -9,6 +9,7 @@ namespace AdventOfCode2022
 {
     public class Day2 : AoCDay
     {
+
         public enum Move
         {
             Rock = 1,
@@ -28,6 +29,14 @@ namespace AdventOfCode2022
             {"Z", Move.Scissors },
         };
 
+        public static Move GetWinningMoveTo(Move move)
+        {
+            return (Move) ((int)move % 3) + 1;
+        }
+        public static Move GetLosingMoveTo(Move move)
+        {
+            return move == Move.Rock ? Move.Scissors : (move - 1) ;
+        }
         
 
         public static PlayedRound PlayRound(Round round)
@@ -43,7 +52,7 @@ namespace AdventOfCode2022
                 p1Score = DrawScore;
                 p2Score = DrawScore;
             }
-            else if(((int)round.Move1 % 3) + 1 == (int)round.Move2) // Player 2 victory
+            else if(GetWinningMoveTo(round.Move1) == round.Move2) // Player 2 victory
             {
                 p1Score = LossScore;
                 p2Score = WinScore;
@@ -69,9 +78,38 @@ namespace AdventOfCode2022
             return score.ToString();
         }
 
+        public enum RoundStrategy
+        {
+            Lose,
+            Draw,
+            Win
+        }
+        public static Move DetermineCounterMove(Move opponentsMove, RoundStrategy strategy)
+        {
+            switch (strategy)
+            {
+                case RoundStrategy.Win: return GetWinningMoveTo(opponentsMove);
+                case RoundStrategy.Lose: return GetLosingMoveTo(opponentsMove);
+                case RoundStrategy.Draw:
+                default:
+                    return opponentsMove;
+            }
+        }
+
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            int score = 0;
+            foreach (var line in input)
+            {
+                var moves = line.Split(" ");
+                var opponentsMove = TranslateToMove[moves[0]];
+                var roundStrategy = (RoundStrategy)(moves[1][0] - 'X');
+                var myMove = DetermineCounterMove(opponentsMove, roundStrategy);
+                var round = new Round(opponentsMove, myMove);
+                var playedRound = PlayRound(round);
+                score += playedRound.Player2Score;
+            }
+            return score.ToString();
         }
     }
 }

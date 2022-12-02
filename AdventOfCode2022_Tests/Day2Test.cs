@@ -18,7 +18,15 @@ namespace AdventOfCode2022_Tests
         [TestMethod]
         public void TestPart2()
         {
-            
+            Assert.AreEqual("12", Day2.ExecutePart2(AoCFile.ReadTestInput(2)));
+        }
+
+        [TestMethod]
+        public void TestLosingMoves()
+        {
+            Assert.AreEqual(Day2.GetLosingMoveTo(Day2.Move.Rock), Day2.Move.Scissors);
+            Assert.AreEqual(Day2.GetLosingMoveTo(Day2.Move.Paper), Day2.Move.Rock);
+            Assert.AreEqual(Day2.GetLosingMoveTo(Day2.Move.Scissors), Day2.Move.Paper);
         }
     }
 }
