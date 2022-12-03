@@ -45,7 +45,25 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            var groups = input.Select((str, idx) => (idx, str)).GroupBy(pair => pair.idx / 3);
+            int groupSums = 0;
+            foreach (var group in groups)
+            {
+                var items = new HashSet<char>();
+                // Add all items in each rucksack into same set
+                foreach (var rucksack in group)
+                {
+                    items.UnionWith(rucksack.str);
+                }
+                // Intersect with each rucksack will leave only the item shared between all rucksacks.
+                foreach (var rucksack in group)
+                {
+                    items.IntersectWith(rucksack.str);
+                }
+                var itemPriority = ToPriority(items.ToList().First());
+                groupSums += itemPriority;
+            }
+            return groupSums.ToString();
         }
     }
 }

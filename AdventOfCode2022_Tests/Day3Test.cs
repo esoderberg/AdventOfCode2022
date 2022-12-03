@@ -15,5 +15,10 @@ namespace AdventOfCode2022_Tests
         {
             Assert.AreEqual("157", Day3.ExecutePart1(AoCFile.ReadTestInput(3)));
         }
+        [TestMethod]
+        public void TestPart2()
+        {
+            Assert.AreEqual("70", Day3.ExecutePart2(AoCFile.ReadTestInput(3)));
+        }
     }
 }
