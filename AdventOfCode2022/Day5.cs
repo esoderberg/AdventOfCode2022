@@ -79,9 +79,40 @@ namespace AdventOfCode2022
             return result;
         }
 
+
+        public static void ExecuteMoves_CrateMover9001(Stack<char>[] stacks, List<MoveInstruction> instructions)
+        {
+            Stack<char> craneStack = new Stack<char>();
+            foreach (var instruction in instructions)
+            {
+                for (int i = 0; i < instruction.Count; i++)
+                {
+                    craneStack.Push(stacks[instruction.FromColumn - 1].Pop());
+                }
+                for (int i = 0; i < instruction.Count; i++)
+                {
+                    stacks[instruction.ToColumn - 1].Push(craneStack.Pop());
+                }
+            }
+        }
+
+
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            var parts = input.Split("");
+            var drawing = parts[0];
+            var instructionLines = parts[1];
+            var stacks = ParseStacks(drawing);
+            var instructions = ParseInstructions(instructionLines);
+
+            ExecuteMoves_CrateMover9001(stacks, instructions);
+
+            var result = "";
+            foreach (var stack in stacks)
+            {
+                result += stack.Peek();
+            }
+            return result;
         }
     }
 }

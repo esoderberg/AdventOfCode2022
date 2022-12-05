@@ -30,5 +30,10 @@ namespace AdventOfCode2022_Tests
         {
             Assert.AreEqual("CMZ", Day5.ExecutePart1(AoCFile.ReadTestInput(5)));
         }
+        [TestMethod]
+        public void TestPart2()
+        {
+            Assert.AreEqual("MCD", Day5.ExecutePart2(AoCFile.ReadTestInput(5)));
+        }
     }
 }
