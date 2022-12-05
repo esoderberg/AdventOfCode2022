@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics;
 using System.Reflection;
 
 namespace AdventOfCode2022
@@ -14,13 +14,16 @@ namespace AdventOfCode2022
                     // Part 1
                     var lines = AoCFile.ReadInput(dayNum);
                     var cls = Type.GetType($"AdventOfCode2022.Day{dayNum}");
+                    var stopwatch = new Stopwatch();
                     try
                     {
                         var mth = cls?.GetMethod(nameof(AoCDay.ExecutePart1));
+                        stopwatch.Start();
                         var result = mth?.Invoke(null, new[] { lines });
+                        stopwatch.Stop();
                         if (result?.GetType() == typeof(string))
                         {
-                            Console.Out.WriteLine($"Result of day {dayNum} part 1: {result}");
+                            Console.Out.WriteLine($"Result of day {dayNum} part 1: {result}     ms: {stopwatch.ElapsedMilliseconds}");
                         }
                     }
                     catch(Exception e)
@@ -31,10 +34,12 @@ namespace AdventOfCode2022
                     try
                     {
                         var mth = cls?.GetMethod(nameof(AoCDay.ExecutePart2));
+                        stopwatch.Start();
                         var result = mth?.Invoke(null, new[] { lines });
+                        stopwatch.Stop();
                         if (result?.GetType() == typeof(string))
                         {
-                            Console.Out.WriteLine($"Result of day {dayNum} part 2: {result}");
+                            Console.Out.WriteLine($"Result of day {dayNum} part 2: {result}     ms: {stopwatch.ElapsedMilliseconds}");
                         }
                     }
                     catch (NotImplementedException)
