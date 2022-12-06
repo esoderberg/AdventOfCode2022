@@ -90,7 +90,18 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            string line = input.First();
+            int distinct_characters = 14;
+            RingBuffer<char> buffer = new RingBuffer<char>(distinct_characters);
+            buffer.Add(line.Take(distinct_characters-1).ToArray());
+            int characters = distinct_characters-1;
+            for (int i = characters; i < line.Length; i++)
+            {
+                buffer.Add(line[i]);
+                characters++;
+                if (!buffer.HasDuplicateItem()) break;
+            }
+            return characters.ToString();
         }
     }
 }

@@ -18,6 +18,15 @@ namespace AdventOfCode2022_Tests
             Assert.AreEqual("10", Day6.ExecutePart1(new() { "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg" }));
             Assert.AreEqual("11", Day6.ExecutePart1(new() { "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw" }));
         }
+        [TestMethod]
+        public void TestPart2()
+        {
+            Assert.AreEqual("19", Day6.ExecutePart2(new() { "mjqjpqmgbljsphdztnvjfqwrcgsmlb" }));
+            Assert.AreEqual("23", Day6.ExecutePart2(new() { "bvwbjplbgvbhsrlpgdmjqwftvncz" }));
+            Assert.AreEqual("23", Day6.ExecutePart2(new() { "nppdvjthqldpwncqszvftbrmjlhg" }));
+            Assert.AreEqual("29", Day6.ExecutePart2(new() { "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg" }));
+            Assert.AreEqual("26", Day6.ExecutePart2(new() { "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw" }));
+        }
 
         [TestMethod]
         public void TestRingBufferIndexOf()
