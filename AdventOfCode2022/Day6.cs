@@ -75,26 +75,102 @@ namespace AdventOfCode2022
     {
         public static string ExecutePart1(List<string> input)
         {
+            return SolveWithFixedSizeArray(input, 4);
+        }
+
+
+
+
+        public static string ExecutePart2(List<string> input)
+        {
+            return SolveWithFixedSizeArray(input, 14);
+        }
+
+        // Absolutely fastest, ~2s for 800mb input
+        private static string SolveWithFixedSizeArray(List<string> input, int distinct_characters)
+        {
             string line = input.First();
-            RingBuffer<char> buffer = new RingBuffer<char>(4);
-            buffer.Add(line.Take(3).ToArray());
-            int characters = 3;
-            for (int i = 3; i < line.Length; i++)
+            
+            int[] letter_counts = new int[26];
+            int currently_distinct_chars = 0;
+            // Initial handling
+            for (int i = 0; i < distinct_characters; i++)
             {
-                buffer.Add(line[i]);
-                characters++;
-                if (!buffer.HasDuplicateItem()) break;
+                int letter_index = line[i] - 'a';
+                switch(letter_counts[letter_index])
+                {
+                    case 0: currently_distinct_chars += 1; break;
+                }
+                letter_counts[letter_index]++;
+            }
+
+            if (currently_distinct_chars == distinct_characters) return distinct_characters.ToString();
+
+            for (int i = distinct_characters; i < line.Length; i++)
+            {
+                int first_letter_index = line[i - distinct_characters] - 'a';
+                int letter_index = line[i] - 'a';
+                letter_counts[first_letter_index]--;
+                if (letter_counts[first_letter_index] == 0) currently_distinct_chars--;
+                if (letter_counts[letter_index] == 0) currently_distinct_chars++;
+                letter_counts[letter_index]++;
+                if (currently_distinct_chars == distinct_characters) return (i+1).ToString();
+
+            }
+            throw new ArgumentException($"Can't find substring with {distinct_characters} distinct letters");
+        }
+        // 2nd fastest
+        private static string SolveWithDictionaryAndSet(List<string> input, int distinct_characters)
+        {
+            string line = input.First();
+            int characters = distinct_characters;
+            // Special handling for first segment, makes the forloop cleaner.
+            var first_segment = line.Take(distinct_characters).ToList();
+            var distinct_set = new HashSet<char>(first_segment);
+            var letter_count = new Dictionary<char, int>();
+            first_segment.ForEach((c) => letter_count[c] = letter_count.GetValueOrDefault(c) + 1);
+            if (distinct_set.Count == distinct_characters) return characters.ToString();
+
+            for (int i = distinct_characters; i < line.Length; i++)
+            {
+                char first_letter = line[i - distinct_characters];
+                letter_count[first_letter]--;
+                if (letter_count[first_letter] == 0) distinct_set.Remove(first_letter);
+                distinct_set.Add(line[i]);
+                letter_count[line[i]] = letter_count.GetValueOrDefault(line[i]) + 1;
+                if (distinct_set.Count == distinct_characters) { characters = i + 1; /* since i is an index */ break; }
+            }
+
+            return characters.ToString();
+        }
+        // Slowest
+        private static string SoilveWithSet(List<string> input, int distinct_characters)
+        {
+            string line = input.First();
+            int characters = 0;
+            var distinct_set = new HashSet<char>();
+            for (int i = 0; i < line.Length; i++)
+            {
+
+                for (int j = 0; j < distinct_characters; j++)
+                {
+                    distinct_set.Add(line[i + j]);
+                }
+                if (distinct_set.Count == distinct_characters) { characters = distinct_characters + i; break; }
+                distinct_set.Clear();
             }
             return characters.ToString();
         }
 
-        public static string ExecutePart2(List<string> input)
+        // 3rd fastest
+        private static string SolveWithRingBuffer(List<string> input, int distinct_characters)
         {
             string line = input.First();
-            int distinct_characters = 14;
+            
+
             RingBuffer<char> buffer = new RingBuffer<char>(distinct_characters);
-            buffer.Add(line.Take(distinct_characters-1).ToArray());
-            int characters = distinct_characters-1;
+            buffer.Add(line.Take(distinct_characters - 1).ToArray());
+            int characters = distinct_characters - 1;
             for (int i = characters; i < line.Length; i++)
             {
                 buffer.Add(line[i]);
