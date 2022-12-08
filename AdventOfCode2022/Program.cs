@@ -7,12 +7,12 @@ namespace AdventOfCode2022
     {
         static void Main(string[] args)
         {
-            if(args.Length == 1)
+            if(args.Length == 1 || args.Length == 2)
             {
                 if (int.TryParse(args[0], out int dayNum))
                 {
                     // Part 1
-                    var lines = AoCFile.ReadInput(dayNum);
+                    var lines = args.Length == 2 ? File.ReadAllLines(args[1]).ToList() : AoCFile.ReadInput(dayNum);
                     var cls = Type.GetType($"AdventOfCode2022.Day{dayNum}");
                     var stopwatch = new Stopwatch();
                     try
