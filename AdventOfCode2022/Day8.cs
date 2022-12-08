@@ -21,12 +21,12 @@ namespace AdventOfCode2022
             public Tree? TallestTop = null;
             public Tree? TallestRight = null;
             public Tree? TallestBottom = null;
-            public int ViewDistLeft = 0;
-            public int ViewDistTop = 0;
-            public int ViewDistRight = 0;
-            public int ViewDistBottom = 0;
+            public long ViewDistLeft = 0;
+            public long ViewDistTop = 0;
+            public long ViewDistRight = 0;
+            public long ViewDistBottom = 0;
             public bool IsVisible => this > TallestLeft || this > TallestTop || this > TallestBottom || this > TallestRight;
-            public int ScenicScore => ViewDistLeft * ViewDistTop * ViewDistBottom * ViewDistRight;
+            public long ScenicScore => ViewDistLeft * ViewDistTop * ViewDistBottom * ViewDistRight;
             public Tree(int height, int x, int y)
             {
                 Height = height;
@@ -184,11 +184,11 @@ namespace AdventOfCode2022
             return visible;
         }
 
-        public static int FindLargestScenicScore(Tree[,] treeGrid)
+        public static long FindLargestScenicScore(Tree[,] treeGrid)
         {
             int width = treeGrid.GetLength(0);
             int height = treeGrid.GetLength(1);
-            int scenicMax = 0;
+            long scenicMax = 0;
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
