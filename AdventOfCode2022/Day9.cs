@@ -9,7 +9,13 @@ namespace AdventOfCode2022
     public class Day9 : AoCDay
     {
         
-        public record Position(int X, int Y);
+        public record Position(int X, int Y)
+        {
+            public override string ToString()
+            {
+                return $"({X},{Y})";
+            }
+        }
         public record Distance(int Dx, int Dy)
         {
             public int ManhattanLength => Math.Abs(Dx) + Math.Abs(Dy);
@@ -78,7 +84,18 @@ namespace AdventOfCode2022
         public class Head : Mover
         {
             public Mover tail;
-            public Head() { tail = new Mover(); }
+            public Head(int knots)
+            {
+                if (knots > 1)
+                    tail = new Head(knots - 1);
+                else
+                    tail = new Mover();
+            }
+            public Mover GetLast()
+            {
+                if (tail is Head h) return h.GetLast();
+                else return tail;
+            }
             public override void OnMoved()
             {
                 var tailDist = tail.DistanceTo(Pos);
@@ -114,7 +131,7 @@ namespace AdventOfCode2022
         public static string ExecutePart1(List<string> input)
         {
             var instructions = ParseInstructions(input);
-            var head = new Head();
+            var head = new Head(1);
             foreach (var instruction in instructions)
             {
                 head.Move(instruction.dir, instruction.count);
@@ -124,7 +141,14 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            var instructions = ParseInstructions(input);
+            var head = new Head(9);
+            foreach (var instruction in instructions)
+            {
+                head.Move(instruction.dir, instruction.count);
+            }
+            System.Diagnostics.Debug.WriteLine(string.Join(", ", head.GetLast().visitOrder));
+            return head.GetLast().visited.Count.ToString();
         }
     }
 }
