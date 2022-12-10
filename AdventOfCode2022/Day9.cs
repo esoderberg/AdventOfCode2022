@@ -28,11 +28,11 @@ namespace AdventOfCode2022
         public class Mover
         {
             public Position Pos = new(0,0);
-            public readonly List<Position> visitOrder = new();
+            //public readonly List<Position> visitOrder = new();
             public readonly HashSet<Position> visited = new();
             public Mover()
             {
-                visitOrder.Add(Pos);
+                //visitOrder.Add(Pos);
                 visited.Add(Pos);
             }
             public void Move(Direction dir, int times)
@@ -68,8 +68,8 @@ namespace AdventOfCode2022
                 {
                     Pos = Pos with { X = Pos.X + dx, Y = Pos.Y + dy };
                     OnMoved();
-                    visitOrder.Add(Pos);
-                    visited.Add(Pos);
+                    //visitOrder.Add(Pos);
+                    //visited.Add(Pos);
                 }
             }
 
@@ -89,7 +89,7 @@ namespace AdventOfCode2022
                 if (knots > 1)
                     tail = new Head(knots - 1);
                 else
-                    tail = new Mover();
+                    tail = new Tail();
             }
             public Mover GetLast()
             {
@@ -104,6 +104,14 @@ namespace AdventOfCode2022
                 {
                     tail.Move(Math.Clamp(tailDist.Dx, -1, 1), Math.Clamp(tailDist.Dy,-1,1));
                 }
+            }
+        }
+
+        public class Tail : Mover
+        {
+            public override void OnMoved()
+            {
+                visited.Add(Pos);
             }
         }
 
@@ -147,7 +155,6 @@ namespace AdventOfCode2022
             {
                 head.Move(instruction.dir, instruction.count);
             }
-            System.Diagnostics.Debug.WriteLine(string.Join(", ", head.GetLast().visitOrder));
             return head.GetLast().visited.Count.ToString();
         }
     }
