@@ -17,7 +17,18 @@ namespace AdventOfCode2022_Tests
         [TestMethod]
         public void TestPart2()
         {
-            //Assert.AreEqual("45000", Day10.ExecutePart2(AoCFile.ReadTestInput(10)));
+            var output = 
+                """
+
+                 ##..##..##..##..##..##..##..##..##..##..
+                 ###...###...###...###...###...###...###.
+                 ####....####....####....####....####....
+                 #####.....#####.....#####.....#####.....
+                 ######......######......######......####
+                 #######.......#######.......#######.....
+                 """.Replace("\r","");
+            var result = Day10.ExecutePart2(AoCFile.ReadTestInput(10));
+            Assert.AreEqual(output, result);
         }
         [TestMethod]
         public void TestSimple()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,7 +87,30 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            var instructions = input.Select(Instruction.Parse).ToList();
+            Processor processor = new Processor();
+            List<(int, int)> CycleRegXValues = new();
+            List<char[]> CRT = new();
+            int CRT_WIDTH = 40;
+            int CRT_HEIGHT = 6;
+            for (int i = 0; i < CRT_HEIGHT; i++)
+            {
+                CRT.Add(new char[CRT_WIDTH]);
+            }
+            for (int i = 0; i < CRT_WIDTH*CRT_HEIGHT; i++)
+            {
+                if (i < instructions.Count)
+                    processor.Load(instructions[i]);
+                //Pixel is covered
+                int column = i % CRT_WIDTH;
+                if (processor.RegisterX - 1 <= column && column <= processor.RegisterX + 1)
+                    CRT[i / CRT_WIDTH][column] = '#';
+                else
+                    CRT[i / CRT_WIDTH][column] = '.';
+                processor.Process();
+
+            }
+            return "\n"+string.Join("\n", CRT.Select(row => new string(row.ToArray())));
         }
 
 
