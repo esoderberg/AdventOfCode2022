@@ -1,90 +1,114 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static AdventOfCode2022.ClimbingGraph;
 
 namespace AdventOfCode2022
 {
-    public class NodePath<T>
-    {
-        private HashSet<T> visited;
-        private List<T> path;
-        public NodePath(T start) { visited = new() { start }; path = new() { start }; }
-        public NodePath(NodePath<T> p, T node)
-        {
-            visited = new(p.visited);
-            path = new(p.path);
-            Visit(node);
-        }
-        public bool HasVisited(T node) { return visited.Contains(node); }
-        public int Nodes { get { return path.Count; } }
-        public int Edges { get { return path.Count - 1; } }
-        public void Visit(T node) { visited.Add(node); path.Add(node); }
-        public override string ToString()
-        {
-            return string.Join(", ", path);
-        }
-        // Gets the last node in the path.
-        public T GetLast() { return path[path.Count - 1]; }
-    }
-
     public class ClimbingGraph
     {
-        private Dictionary<(int, int), List<(int, int)>> climbableNeighbours = new();
-        public ClimbingGraph(int[,] grid, Func<int, int, bool> neighbourCondition)
+        public struct Node
         {
-            // Up, Right, Down, Left
-            List<(int, int)> dirs = new() { (-1, 0), (0, 1), (1, 0), (0, -1) };
-            for (int row = 0; row < grid.GetLength(0); row++)
-            {
-                for (int column = 0; column < grid.GetLength(1); column++)
-                {
-                    var currentHeight = grid[row, column];
-                    var neighbours = new List<(int, int)>();
-                    // Check each of the four directions
-                    foreach (var dir in dirs)
-                    {
-                        var coordinate = (row + dir.Item1, column + dir.Item2);
-                        // Coordinate is inside the grid
-                        if (0 <= coordinate.Item1 && coordinate.Item1 < grid.GetLength(0)
-                            && 0 <= coordinate.Item2 && coordinate.Item2 < grid.GetLength(1))
-                        {
-                            // Coordinate can be climbed to
-                            if (neighbourCondition(currentHeight, grid[coordinate.Item1, coordinate.Item2]))
-                                neighbours.Add(coordinate);
-                        }
-                    }
-                    climbableNeighbours[(row, column)] = neighbours;
-                }
-            }
+            public int Height;
+            public bool visited;
+            public (int, int) visitedBy;
         }
 
-        public NodePath<(int, int)> CalculateShortestPath((int, int) start, (int, int) end)
+        private Dictionary<(int, int), List<(int, int)>> climbableNeighbours = new();
+        public ClimbingGraph(Node[,] grid, Func<int, int, bool> neighbourCondition)
         {
-            return CalculateShortestPath(start, new HashSet<(int,int)>() { end });
+            this.grid = grid;
+            this.neighbourCondition = neighbourCondition;
+        }
+        Node[,] grid;
+        Func<int, int, bool> neighbourCondition;
+
+        public List<(int, int)> CalculateShortestPath((int, int) start, (int, int) end)
+        {
+            Queue<(int, int)> nodes = new();
+            nodes.Enqueue(start);
+            // Up, Right, Down, Left
+            List<(int, int)> dirs = new() { (-1, 0), (0, 1), (1, 0), (0, -1) };
+            int rows = grid.GetLength(0);
+            int columns = grid.GetLength(1);
+            while (nodes.Count > 0)
+            {
+                var node = nodes.Dequeue();
+                foreach (var dir in dirs)
+                {
+                    var neighbour = (node.Item1 + dir.Item1, node.Item2 + dir.Item2);
+                    if (0 <= neighbour.Item1 && neighbour.Item1 < rows
+                        && 0 <= neighbour.Item2 && neighbour.Item2 < columns)
+                    {
+                        if (grid[neighbour.Item1, neighbour.Item2].visited) continue;
+                        else if (neighbourCondition(grid[node.Item1, node.Item2].Height, grid[neighbour.Item1, neighbour.Item2].Height))
+                        {
+                            if (neighbour == end)
+                            {
+                                List<(int, int)> path = new() { neighbour, node };
+                                while (node != start)
+                                {
+                                    node = grid[node.Item1, node.Item2].visitedBy;
+                                    path.Add(node);
+                                }
+                                return path;
+                            }
+                            else
+                            {
+                                grid[neighbour.Item1, neighbour.Item2].visited = true;
+                                grid[neighbour.Item1, neighbour.Item2].visitedBy = node;
+                                nodes.Enqueue(neighbour);
+                            }
+                        }
+                    }
+                }
+            }
+            throw new ArgumentException($"No path found between {start} and {end}");
         }
         /// <summary>
         /// Calculate the shortest path to any of the end nodes.
         /// </summary>
-        public NodePath<(int, int)> CalculateShortestPath((int, int) start, HashSet<(int, int)> end)
+        public List<(int, int)> CalculateShortestPathToHeight((int, int) start, int end)
         {
-            Queue<NodePath<(int, int)>> paths = new();
-            paths.Enqueue(new(start));
-            HashSet<(int, int)> visited = new();
-            while (paths.Count > 0)
+            Queue<(int, int)> nodes = new();
+            nodes.Enqueue(start);
+            // Up, Right, Down, Left
+            (int, int)[] dirs = new (int, int)[]{ (-1, 0), (0, 1), (1, 0), (0, -1) };
+            int rows = grid.GetLength(0);
+            int columns = grid.GetLength(1);
+            while (nodes.Count > 0)
             {
-                var path = paths.Dequeue();
-                foreach (var neighbour in climbableNeighbours[path.GetLast()])
+                var node = nodes.Dequeue();
+                for (int dirIx = 0; dirIx < dirs.Length; dirIx++)
                 {
-                    if (end.Contains(neighbour)) { return new(path, neighbour); }
-                    if (visited.Contains(neighbour)) continue;
-                    else
+                    var neighbour = (node.Item1 + dirs[dirIx].Item1, node.Item2 + dirs[dirIx].Item2);
+                    if (0 <= neighbour.Item1 && neighbour.Item1 < rows
+                        && 0 <= neighbour.Item2 && neighbour.Item2 < columns)
                     {
-                        paths.Enqueue(new(path, neighbour));
-                        visited.Add(neighbour);
+                        if (grid[neighbour.Item1,neighbour.Item2].visited) continue;
+                        else if (neighbourCondition(grid[node.Item1, node.Item2].Height, grid[neighbour.Item1, neighbour.Item2].Height))
+                        {
+                            if (grid[neighbour.Item1, neighbour.Item2].Height == end)
+                            {
+                                List<(int, int)> path = new() { neighbour, node };
+                                while (node != start)
+                                {
+                                    node = grid[node.Item1, node.Item2].visitedBy;
+                                    path.Add(node);
+                                }
+                                return path;
+                            }
+                            else
+                            {
+                                grid[neighbour.Item1, neighbour.Item2].visited = true;
+                                grid[neighbour.Item1, neighbour.Item2].visitedBy = node;
+                                nodes.Enqueue(neighbour);
+                            }
+                        }
                     }
-
                 }
             }
             throw new ArgumentException($"No path found between {start} and {end}");
@@ -95,11 +119,13 @@ namespace AdventOfCode2022
     {
 
 
-        public static (int[,],(int,int),(int,int)) ParseHeightmap(List<string> input)
+        public static (Node[,],(int,int),(int,int)) ParseHeightmap(List<string> input)
         {
+            Stopwatch w = new();
+            w.Start();
             int rows = input.Count;
             int columns = input[0].Length;
-            int[,] grid = new int[rows, columns];
+            Node[,] grid = new Node[rows, columns];
 
             (int, int) start = (-1,-1);
             (int, int) end = (-1, -1);
@@ -113,18 +139,22 @@ namespace AdventOfCode2022
                     {
                         case 'S':
                             start = (row, column);
-                            grid[row, column] = 0;
+                            grid[row, column].Height = 0;
                             break;
                         case 'E':
                             end = (row, column);
-                            grid[row, column] = 'z' - 'a';
+                            grid[row, column].Height = 'z' - 'a';
                             break;
                         default:
-                            grid[row, column] = input[row][column] - 'a';
+                            grid[row, column].Height = input[row][column] - 'a';
                             break;
                     }
+                    grid[row, column].visited = false;
+                    grid[row, column].visitedBy = (-1, -1);
                 }
             }
+            w.Stop();
+            System.Console.Out.WriteLine($"Grid creation ms {w.ElapsedMilliseconds}");
             return (grid, start, end);
         }
 
@@ -133,38 +163,33 @@ namespace AdventOfCode2022
             int rows = input.Count;
             int columns = input.Count;
             var result = ParseHeightmap(input);
-            int[,] grid = result.Item1;
+            var grid = result.Item1;
             (int, int) start = result.Item2;
             (int, int) end = result.Item3;
-
+            Stopwatch w = new();
+            w.Start();
             var graph = new ClimbingGraph(grid, (height, neighbourHeight) => height+1 >= neighbourHeight);
+            w.Stop();
+            System.Console.Out.WriteLine($" parse ms {w.ElapsedMilliseconds}");
             var path = graph.CalculateShortestPath(start, end);
-            return path.Edges.ToString();
+            return (path.Count -1).ToString();
         }
 
         public static string ExecutePart2(List<string> input)
         {
             int rows = input.Count;
-            int columns = input.Count;
+            int columns = input[0].Length;
             var result = ParseHeightmap(input);
-            int[,] grid = result.Item1;
+            var grid = result.Item1;
             (int, int) _ = result.Item2;
             (int, int) start = result.Item3;
-
+            Stopwatch w = new();
+            w.Start();
             var graph = new ClimbingGraph(grid, (height, neighbourHeight) => height-1 <= neighbourHeight);
-            var endSet = new HashSet<(int, int)>();
-            for (int row = 0; row < rows; row++)
-            {
-                for (int column = 0; column < columns; column++)
-                {
-                    if (grid[row,column] == 0)
-                    {
-                        endSet.Add((row, column));
-                    }
-                }
-            }
-            var path = graph.CalculateShortestPath(start, endSet);
-            return path.Edges.ToString();
+            w.Stop();
+            System.Console.Out.WriteLine($" parse ms {w.ElapsedMilliseconds}");
+            var path = graph.CalculateShortestPathToHeight(start, 0);
+            return (path.Count -1).ToString();
         }
     }
 }
