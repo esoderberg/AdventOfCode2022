@@ -138,7 +138,31 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            int rows = input.Count;
+            int columns = input.Count;
+            var result = ParseHeightmap(input);
+            int[,] grid = result.Item1;
+            (int, int) start = result.Item2;
+            (int, int) end = result.Item3;
+
+            var graph = new ClimbingGraph(grid);
+            var paths = new List<NodePath<(int,int)>>();
+            for (int row = 0; row < rows; row++)
+            {
+                for (int column = 0; column < columns; column++)
+                {
+                    if (grid[row,column] == 0)
+                    {
+                        try
+                        {
+                            var path = graph.CalculateShortestPath((row, column), end);
+                            paths.Add(path);
+                        }catch(ArgumentException e) { }
+                    }
+                }
+            }
+            
+            return paths.MinBy(p => p.Edges)!.Edges.ToString();
         }
     }
 }
