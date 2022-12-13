@@ -13,6 +13,12 @@ namespace AdventOfCode2022
 
         public abstract record class PacketData
         {
+
+            public static int Compare(PacketData @this, PacketData other)
+            {
+                return @this.Compare(other);
+            }
+
             public int Compare(PacketData other)
             {
                 switch (other)
@@ -39,13 +45,13 @@ namespace AdventOfCode2022
                 for (int i = 0; i < Items.Count && i < other.Items.Count; i++)
                 {
                     switch (Items[i].Compare(other.Items[i])) {
-                        case 1:  return 1;
-                        case -1: return -1;
+                        case -1:  return -1;
+                        case 1: return 1;
                         default:break;
                     }
                 }
-                if (Items.Count < other.Items.Count) return 1;
-                else if (Items.Count > other.Items.Count) return -1;
+                if (Items.Count < other.Items.Count) return -1;
+                else if (Items.Count > other.Items.Count) return 1;
                 else return 0;
             }
             public override string ToString()
@@ -62,7 +68,7 @@ namespace AdventOfCode2022
             /// <returns></returns>
             public override int Compare(PacketInt other)
             {
-                return Value < other.Value ? 1 : (Value == other.Value ? 0 : -1);
+                return Value < other.Value ? -1 : (Value == other.Value ? 0 : 1);
             }
 
             public override int Compare(PacketList other)
@@ -116,7 +122,6 @@ namespace AdventOfCode2022
 
         public static string ExecutePart1(List<string> input)
         {
-
             var packetPairs = input.Split("").Select(pair => pair.Select(ParsePacket).ToList()).ToList();
             int index = 1;
             List<int> correctOrder = new();
@@ -124,7 +129,7 @@ namespace AdventOfCode2022
             {
                 var p1 = pair[0];
                 var p2 = pair[1];
-                if (p1.Compare(p2) == 1)
+                if (p1.Compare(p2) == -1)
                 {
                     correctOrder.Add(index);
                 }
@@ -135,7 +140,18 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+
+            var packets = input.Split("").Select(pair => pair.Select(ParsePacket).ToList()).SelectMany(s => s).ToList();
+            // Yes this is beautiful, okay?
+            var d1 = new PacketList(new List<PacketData>() { new PacketList(new List<PacketData>() { new PacketInt(2) }) });
+            var d2 = new PacketList(new List<PacketData>() { new PacketList(new List<PacketData>() { new PacketInt(6) }) });
+            packets.Add(d1);
+            packets.Add(d2);
+            List<int> dividers = new();
+            packets.Sort(PacketData.Compare);
+            dividers.Add(packets.FindIndex(p => p.Compare(d1) == 0)+1);
+            dividers.Add(packets.FindIndex(p => p.Compare(d2) == 0)+1);
+            return dividers.Aggregate(1, (acc, n) => acc*n).ToString();
         }
     }
 }
