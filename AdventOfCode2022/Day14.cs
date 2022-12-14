@@ -90,7 +90,7 @@ namespace AdventOfCode2022
             var gridBounds = new Square(0, 0, bounds.right - bounds.left, bounds.bottom - bounds.top);
             var grainsDropped = 0;
 
-            while (true)
+            while (grid[500 - bounds.left, 0] != 'o')
             {
                 int sandX = 500 - bounds.left;
 
@@ -106,6 +106,7 @@ namespace AdventOfCode2022
                         else if (sandX + 1 > gridBounds.right) return grainsDropped;
                         else if (grid[sandX + 1, i] == '.')
                             sandX++;
+                        else if (i == 0) return grainsDropped;
                         else
                         {
                             grid[sandX, i - 1] = 'o'; // Comes to rest at the tile above we saw the rock/sand
@@ -131,7 +132,14 @@ namespace AdventOfCode2022
 
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            var lines = Parse(input);
+            var firstBounds = DetermineBounds(lines);
+            // Yes this is hacky
+            lines.Add(new Line((firstBounds.left - 200, firstBounds.Height + 2), (firstBounds.right + 200, firstBounds.Height + 2)));
+            var (bounds, grid) = CreateGrid(lines);
+            //PrintGrid(grid);
+            var grains = Simulate(grid, bounds);
+            return grains.ToString();
         }
     }
 }
