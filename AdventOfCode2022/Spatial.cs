@@ -41,5 +41,36 @@ namespace AdventOfCode2022
             return left <= x && x <= right && top <= y && y <= bottom;
         }
     }
-
+    public record Rhombus
+    {
+        public Point[] vertices { get; init; }
+        public Line[] edges { get; init; }
+        public Point center { get; init; }
+        private int indexLeftMost = 0;
+        private int indexTopMost = 0;
+        private int indexRightMost = 0;
+        private int indexBottomMost = 0;
+        public Rhombus(params Point[] vertices)
+        {
+            this.vertices = vertices;
+            edges = new Line[4];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                if (vertices[indexLeftMost].x > vertices[i].x) indexLeftMost = i;
+                if (vertices[indexRightMost].x < vertices[i].x) indexRightMost = i;
+                if (vertices[indexTopMost].y > vertices[i].y) indexTopMost = i;
+                if (vertices[indexBottomMost].y < vertices[i].y) indexBottomMost = i;
+                edges[i] = new Line(vertices[i], vertices[(i + 1) % vertices.Length]);
+            }
+            center = new Point(
+                vertices[indexLeftMost].x + (vertices[indexRightMost].ManhattanLengthTo(vertices[indexLeftMost]) / 2),
+                vertices[indexTopMost].y + (vertices[indexBottomMost].ManhattanLengthTo(vertices[indexBottomMost]) / 2));
+        }
+        public int Width => vertices[indexLeftMost].ManhattanLengthTo(vertices[indexRightMost]);
+        public int Height => vertices[indexTopMost].ManhattanLengthTo(vertices[indexBottomMost]);
+        //public bool Contains(int x, int y)
+        //{
+        //    return vertices[indexLeftMost] <= x && x <= vertices[indexRightMost] && top <= y && y <= bottom;
+        //}
+    }
 }

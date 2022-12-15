@@ -53,9 +53,37 @@ namespace AdventOfCode2022
             return impossiblePoints.ToString();
         }
 
+        public static long coordinate_limit = 4000000;
         public static string ExecutePart2(List<string> input)
         {
-            throw new NotImplementedException();
+            var sensor_beacons = input.Select(Parse).ToList();
+            List<(Point, int)> sensors_with_length = sensor_beacons.Select(p => (p.Item1, p.Item1.ManhattanLengthTo(p.Item2))).ToList();
+            sensors_with_length =  sensors_with_length.OrderBy(p => p.Item1.x).ThenBy(p => p.Item1.y).ToList();
+            for (int y = 0; y < coordinate_limit; y++)
+            {
+                for (int x = 0; x < coordinate_limit; x++)
+                {
+                    bool isNotNearSensor = true;
+                    foreach (var pair in sensors_with_length)
+                    {
+                        var sensor = pair.Item1;
+                        var len = pair.Item2;
+                        if (sensor.ManhattanLengthTo(x, y) <= len)
+                        {
+                            isNotNearSensor = false;
+                            // Jump across the area covered by this sensor on this row.
+                            var heightDiffFromCenter = Math.Abs(y - sensor.y);
+                            var widthDiffFromCenter = Math.Abs(x - sensor.x);
+                            x = sensor.x + (len - heightDiffFromCenter);
+                            break;
+                        }
+                    }
+                    if (isNotNearSensor)
+                        return ((x * 4000000L) + (long)y).ToString();
+
+                }
+            }
+            return "";
         }
     }
 }

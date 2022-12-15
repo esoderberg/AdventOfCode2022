@@ -19,7 +19,8 @@ namespace AdventOfCode2022_Tests
         [TestMethod]
         public void TestPart2()
         {
-            Assert.AreEqual("93", Day15.ExecutePart2(AoCFile.ReadTestInput(15)));
+            Day15.coordinate_limit = 20;
+            Assert.AreEqual("56000011", Day15.ExecutePart2(AoCFile.ReadTestInput(15)));
         }
     }
 }
