@@ -3,12 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 
 namespace AdventOfCode2022
 {
     public record Point(int x, int y)
     {
         public Point((int, int) xy) : this(xy.Item1, xy.Item2) { }
+        
+        public int ManhattanLengthTo(Point p)
+        {
+            return Math.Abs(p.x - x) + Math.Abs(p.y - y);
+        }
+        public int ManhattanLengthTo(int x, int y)
+        {
+            return Math.Abs(x - this.x) + Math.Abs(y - this.y);
+        }
     }
 
     public record Line(Point start, Point end)
@@ -21,7 +31,7 @@ namespace AdventOfCode2022
         public Point TopMost => start.y <= end.y ? start : end;
         public Point BottomMost => start.y >= end.y ? start : end;
     }
-
+    
     public record Square(int left, int top, int right, int bottom)
     {
         public int Width => right - left;
@@ -31,5 +41,5 @@ namespace AdventOfCode2022
             return left <= x && x <= right && top <= y && y <= bottom;
         }
     }
-    
+
 }
