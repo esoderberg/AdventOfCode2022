@@ -117,10 +117,10 @@ namespace AdventOfCode2022
             var openValves = new List<Valve>();
             var distance = CalculateShortestDistances(valves);
 
-            List<(int, List<((string,string), (int,int))>)> completed = new();
-            Queue<((string me,string ele) pos, HashSet<string> remaining, (int me,int ele) time, int pressure, List<((string mpos,string epos), (int mt,int et))> path)> toVisit = new();
+            List<int> completed = new();
+            Queue<((string me,string ele) pos, HashSet<string> remaining, (int me,int ele) time, int pressure)> toVisit = new();
             // Current node      , remaining nodes                     , minutes left, released pressure, path 
-            toVisit.Enqueue((("AA","AA"), new(nonZeroValves.Select(v => v.Id)), (26,26), 0, new() { (("AA","AA"), (26,26)) }));
+            toVisit.Enqueue((("AA","AA"), new(nonZeroValves.Select(v => v.Id)), (26,26), 0));
             while (toVisit.Count > 0)
             {
                 var p = toVisit.Dequeue();
@@ -154,19 +154,18 @@ namespace AdventOfCode2022
                                 ((myValve.id, eleValve.id),
                                 remaining, 
                                 (myValve.time, eleValve.time),
-                                pressureReleased,
-                                new(p.path) { ((myValve.id,eleValve.id),(myValve.time, eleValve.time)) }) );
+                                pressureReleased));
                         }
                     }
 
                     // If there was no new valve we could visit within the remaining time then this path is completed.
                     if (!wentSomewhere)
-                        completed.Add((p.pressure, p.path));
+                        completed.Add(p.pressure);
                 }
-                else completed.Add((p.pressure, p.path));
+                else completed.Add(p.pressure);
             }
-            completed = completed.OrderByDescending(p => p.Item1).ToList();
-            return completed.Max(p => p.Item1).ToString();
+            completed = completed.OrderByDescending(p => p).ToList();
+            return completed.Max(p => p).ToString();
         }
     }
 }
