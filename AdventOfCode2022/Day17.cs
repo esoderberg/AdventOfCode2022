@@ -9,7 +9,7 @@ namespace AdventOfCode2022
     public class Day17 : AoCDay
     {
 
-        public static int rocks_to_drop = 2022;
+        public static long rocks_to_drop = 2022;
 
         // pairs Offset from rock-bottom, height of column
         //public static (int offset, int height)[][] RockPatterns = new (int, int)[5][]
@@ -104,57 +104,43 @@ namespace AdventOfCode2022
                             rows[y - ry][x + rx] = rockPattern[ry][rx];
                     }
                 }
-                //System.Console.Out.WriteLine("\n--------------------------");
-                ////System.Diagnostics.Debug.WriteLine("\n--------------------------");
-                //for (int row = rows.Count-1; row >= 0; row--)
-                //{
-                //    System.Console.Out.WriteLine(string.Join("",rows[row]));
-                //    //System.Diagnostics.Debug.WriteLine(string.Join("",rows[row]));
-                //}
-            }
-            System.Console.Out.WriteLine("\n--------------------------");
-            //System.Diagnostics.Debug.WriteLine("\n--------------------------");
-            for (int row = rows.Count - 1; row >= 0; row--)
-            {
-                System.Console.Out.WriteLine(string.Join("", rows[row]));
-                //System.Diagnostics.Debug.WriteLine(string.Join("",rows[row]));
             }
             return highestRock.ToString();
         }
 
-        public static string ExecutePart2(List<string> input)
+        public static void LogTower(List<char[]> rows)
         {
-            rocks_to_drop = 100000;
-            int chuteWidth = 7;
-            var jets = input.First();
-            int highestRock = 0;
-            List<char[]> rows = new List<char[]>();
+            System.Diagnostics.Debug.WriteLine("\n--------------------------");
 
-            Dictionary<(int rockIndex, int jetIndex), (int, int)> RocksDroppedBetweenFullWidths = new();
-
-            rows.Add("-------".ToCharArray()); // Need to subtract 1 from heigh later.
-            int nextRock = 0;
-            int nextJet = 0;
-            for (int i = 0; i < rocks_to_drop; i++)
+            for (int row = rows.Count - 1; row >= 0; row--)
             {
-                if (RocksDroppedBetweenFullWidths.TryGetValue((nextRock, nextJet), out var value)){
+                System.Diagnostics.Debug.WriteLine(string.Join("", rows[row]));
+            }
+        }
 
-                }
-                var rockPattern = RockPatterns[nextRock];
-                nextRock = (nextRock + 1) % RockPatterns.Count;
+        public static (int nextRockIndex, int nextJetIndex, int rocksDropped, int height) DropRocksUntilFullWidth(int rockIndex, int jetIndex, string jets)
+        {
+            List<char[]> rows = new List<char[]>();
+            int chuteWidth = 7;
+            int droppedRocks = 0;
+            int highestRock = 0;
+            rows.Add("-------".ToCharArray()); // Need to subtract 1 from heigh later.
+            while (true)
+            {
+                var rockPattern = RockPatterns[rockIndex];
+                rockIndex = (rockIndex + 1) % RockPatterns.Count;
                 var width = rockPattern[0].Length;
                 int x = 2; // Left most rock
                 int y = highestRock + 3 + rockPattern.Length; // Topmost rock
-
+                droppedRocks++;
                 while (rows.Count <= y)
                     rows.Add(".......".ToCharArray());
 
                 bool atRest = false;
-
                 while (!atRest)
                 {
-                    var jet = jets[nextJet];
-                    nextJet = (nextJet + 1) % jets.Length;
+                    var jet = jets[jetIndex];
+                    jetIndex = (jetIndex + 1) % jets.Length;
                     // Push by jet
                     var preMoveX = x;
                     if (jet == '<' && x > 0) x = x - 1;
@@ -186,14 +172,46 @@ namespace AdventOfCode2022
                             rows[y - ry][x + rx] = rockPattern[ry][rx];
                     }
                 }
+                LogTower(rows);
+                for (int ry = 0; ry < rockPattern.Length; ry++)
+                {
+                    if (rows[y - ry].All(c => c == '#')) return (rockIndex, jetIndex, droppedRocks, highestRock);
+                }
             }
-            System.Console.Out.WriteLine("\n--------------------------");
-            //System.Diagnostics.Debug.WriteLine("\n--------------------------");
-            for (int row = rows.Count - 1; row >= 0; row--)
+        }
+
+        public static string ExecutePart2(List<string> input)
+        {
+            rocks_to_drop = 1000000000000;
+            var jets = input.First();
+            long highestRock = 0;
+            List<char[]> rows = new List<char[]>();
+
+            Dictionary<(int rockIndex, int jetIndex), (int rockIndex, int jetIndex, int rocksDropped, int height)> DropCyclePatterns = new();
+
+            rows.Add("-------".ToCharArray()); // Need to subtract 1 from heigh later.
+            int nextRock = 0;
+            int nextJet = 0;
+            for (long i = 0; i < rocks_to_drop; i++)
             {
-                System.Console.Out.WriteLine(string.Join("", rows[row]));
-                //System.Diagnostics.Debug.WriteLine(string.Join("",rows[row]));
+                if(DropCyclePatterns.TryGetValue((nextRock, nextJet), out var val))
+                {
+                    i += val.rocksDropped;
+                    highestRock += val.height;
+                    nextRock = val.rockIndex;
+                    nextJet = val.jetIndex;
+                }
+                else
+                {
+                    var res = DropRocksUntilFullWidth(nextRock, nextJet, jets);
+                    DropCyclePatterns.Add((nextRock, nextJet), res);
+                    i += res.rocksDropped;
+                    highestRock += res.height;
+                    nextRock = res.nextRockIndex;
+                    nextJet = res.nextJetIndex;
+                }
             }
+            
             return highestRock.ToString();
         }
 
