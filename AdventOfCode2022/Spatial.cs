@@ -34,6 +34,10 @@ namespace AdventOfCode2022
             yield return new Point3D(x, y, z + 1);
             yield return new Point3D(x, y, z - 1);
         }
+        public override string ToString()
+        {
+            return $"({x},{y},{z})";
+        }
     }
 
     public record Line(Point start, Point end)
