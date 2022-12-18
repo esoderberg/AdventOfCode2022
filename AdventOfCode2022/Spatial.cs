@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Schema;
@@ -18,6 +19,20 @@ namespace AdventOfCode2022
         public int ManhattanLengthTo(int x, int y)
         {
             return Math.Abs(x - this.x) + Math.Abs(y - this.y);
+        }
+    }
+
+    public record Point3D(int x, int y, int z)
+    {
+        public Point3D((int x, int y, int z) t) : this(t.x, t.y, t.z) { }
+        public IEnumerable<Point3D> Neighbours()
+        {
+            yield return new Point3D(x + 1, y, z);
+            yield return new Point3D(x - 1, y, z);
+            yield return new Point3D(x, y + 1, z);
+            yield return new Point3D(x, y - 1, z);
+            yield return new Point3D(x, y, z + 1);
+            yield return new Point3D(x, y, z - 1);
         }
     }
 

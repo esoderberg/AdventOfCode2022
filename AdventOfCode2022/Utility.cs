@@ -47,5 +47,14 @@ namespace AdventOfCode2022
             var item2 = it.Current; it.MoveNext();
             return (item1, item2);
         }
+        public static (T, T, T) Thruple<T>(this IEnumerable<T> ienum)
+        {
+            var it = ienum.GetEnumerator();
+            it.MoveNext();
+            var item1 = it.Current; it.MoveNext();
+            var item2 = it.Current; it.MoveNext();
+            var item3 = it.Current; it.MoveNext();
+            return (item1, item2, item3);
+        }
     }
 }
