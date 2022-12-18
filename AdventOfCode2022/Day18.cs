@@ -103,6 +103,7 @@ namespace AdventOfCode2022
                                             toVisit.Clear();
                                             break;
                                         }
+                                        else if (trappedAir.Contains(n)) { }
                                         else if (!visited.Contains(n) && !lavaCubes.Contains(n))
                                         {
                                             toVisit.Enqueue(n);
@@ -111,7 +112,11 @@ namespace AdventOfCode2022
                                     }
                                 }
                             }
-                            if (!reachedSurface) coveredSides++;
+                            if (!reachedSurface)
+                            {
+                                trappedAir.UnionWith(visited);
+                                coveredSides++;
+                            }
                         }
                     }
                     else
